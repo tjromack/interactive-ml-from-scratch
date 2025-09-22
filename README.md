@@ -3,7 +3,7 @@
 
 > **🎯 Goal:** Build linear regression from scratch using only vanilla JavaScript, HTML, and CSS - no frameworks, no libraries except Plotly for visualization. Perfect for understanding ML fundamentals.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-View%20Project-blue?style=for-the-badge)](https://tjromack.github.io/interactive-ml-from-scratch)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-View%20Project-blue?style=for-the-badge)](https://github.com/tjromack/interactive-ml-from-scratch/blob/main/demos/index.html)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE.txt)
 
 ## 🌟 What Makes This Special
