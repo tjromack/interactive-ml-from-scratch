@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 1: ML Foundation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.26.0/plotly.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .step {
+            margin-bottom: 40px;
+        }
+        .step h2 {
+            color: #ffd700;
+            border-bottom: 2px solid #ffd700;
+            padding-bottom: 10px;
+        }
+        .step h3 {
+            color: #87ceeb;
+        }
+        .true-params {
+            background: rgba(255, 215, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #ffd700;
+        }
+        .insights {
+            background: rgba(135, 206, 235, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #87ceeb;
+        }
+        .math-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+        #plot {
+            height: 500px;
+            margin: 20px 0;
+        }
+        .ready-banner {
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            color: #000;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align: center; font-size: 2.5em; margin-bottom: 30px;">
+            🏠 Phase 1: Foundation & Data Understanding
+        </h1>
+
+        <div class="step">
+            <h2>Step 1: Create Synthetic but Realistic Data</h2>
+            <p><strong>Why synthetic data first?</strong> We know the TRUE relationship, so we can verify our algorithm works correctly!</p>
+            
+            <div class="true-params">
+                <h3>🎯 TRUE PARAMETERS (Hidden from our algorithm):</h3>
+                <div id="true-params-display"></div>
+            </div>
+
+            <p>We're generating 100 houses with square footage between 800-3000 sqft, adding realistic market noise.</p>
+        </div>
+
+        <div class="step">
+            <h2>Step 2: Exploratory Visualization</h2>
+            <p>Let's see the data our algorithm needs to figure out:</p>
+            <div id="plot"></div>
+            
+            <div class="insights">
+                <h3>📊 Data Insights:</h3>
+                <div id="insights-display"></div>
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>Step 3: Mathematical Foundation</h2>
+            <p>Before coding, let's understand the math our algorithm will use:</p>
+            
+            <div class="math-box">
+                <strong>1. LINEAR MODEL:</strong><br>
+                ŷ = θ₀ + θ₁ × x<br>
+                where ŷ = predicted price, θ₀ = intercept, θ₁ = slope, x = square footage
+            </div>
+
+            <div class="math-box">
+                <strong>2. COST FUNCTION (Mean Squared Error):</strong><br>
+                J(θ₀, θ₁) = (1/2m) × Σ(ŷᵢ - yᵢ)²<br>
+                We square errors to penalize big mistakes more!
+            </div>
+
+            <div class="math-box">
+                <strong>3. GRADIENT DESCENT UPDATES:</strong><br>
+                θ₀ = θ₀ - α × ∂J/∂θ₀<br>
+                θ₁ = θ₁ - α × ∂J/∂θ₁<br>
+                where α = learning rate (step size)
+            </div>
+
+            <div class="math-box">
+                <strong>4. PARTIAL DERIVATIVES:</strong><br>
+                ∂J/∂θ₀ = (1/m) × Σ(ŷᵢ - yᵢ)<br>
+                ∂J/∂θ₁ = (1/m) × Σ(ŷᵢ - yᵢ) × xᵢ
+            </div>
+
+            <p><strong>The Intuition:</strong> If predictions are too high, gradients are positive. Subtracting positive gradients decreases parameters, reducing future predictions. The algorithm "walks downhill" on the error surface!</p>
+        </div>
+
+        <div class="step">
+            <h2>Step 4: Baseline Performance</h2>
+            <div id="baseline-display"></div>
+            <p>Our algorithm needs to beat this baseline to be useful!</p>
+        </div>
+
+        <div class="ready-banner">
+            ✅ PHASE 1 COMPLETE!<br>
+            Ready for Phase 2: Core Algorithm Implementation
+        </div>
+    </div>
+
+    <script>
+        // Generate synthetic house data
+        function generateHouseData() {
+            // Set seed for reproducibility (simple version)
+            Math.seedrandom = function(seed) {
+                Math.random = function() {
+                    const x = Math.sin(seed++) * 10000;
+                    return x - Math.floor(x);
+                };
+            };
+            
+            const TRUE_SLOPE = 150;
+            const TRUE_INTERCEPT = 50000;
+            const noise_level = 15000;
+            const n_samples = 100;
+            
+            // Display true parameters
+            document.getElementById('true-params-display').innerHTML = `
+                <p>• Slope (price per sqft): $${TRUE_SLOPE}</p>
+                <p>• Intercept (base price): $${TRUE_INTERCEPT.toLocaleString()}</p>
+                <p>• Noise level: $${noise_level.toLocaleString()}</p>
+            `;
+            
+            const square_footage = [];
+            const observed_prices = [];
+            
+            // Simple random number generator
+            let seed = 42;
+            function random() {
+                const x = Math.sin(seed++) * 10000;
+                return x - Math.floor(x);
+            }
+            
+            function normalRandom() {
+                // Box-Muller transform for normal distribution
+                const u1 = random();
+                const u2 = random();
+                return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+            }
+            
+            for (let i = 0; i < n_samples; i++) {
+                const sqft = 800 + random() * (3000 - 800);
+                const true_price = TRUE_SLOPE * sqft + TRUE_INTERCEPT;
+                const noise = normalRandom() * noise_level;
+                
+                square_footage.push(sqft);
+                observed_prices.push(true_price + noise);
+            }
+            
+            return {
+                square_footage,
+                observed_prices,
+                TRUE_SLOPE,
+                TRUE_INTERCEPT,
+                noise_level
+            };
+        }
+        
+        // Generate data and create visualization
+        const data = generateHouseData();
+        
+        // Calculate insights
+        const correlation = calculateCorrelation(data.square_footage, data.observed_prices);
+        const avgPrice = data.observed_prices.reduce((a, b) => a + b) / data.observed_prices.length;
+        const avgSqft = data.square_footage.reduce((a, b) => a + b) / data.square_footage.length;
+        const naivePricePerSqft = avgPrice / avgSqft;
+        
+        document.getElementById('insights-display').innerHTML = `
+            <p>• Correlation coefficient: ${correlation.toFixed(3)} (closer to 1.0 = stronger linear relationship)</p>
+            <p>• Naive estimate (avg_price/avg_sqft): $${naivePricePerSqft.toFixed(0)} per sqft</p>
+            <p>• True slope we're trying to find: $${data.TRUE_SLOPE} per sqft</p>
+        `;
+        
+        // Calculate baseline performance
+        const baselineMSE = data.observed_prices.reduce((sum, price) => sum + Math.pow(price - avgPrice, 2), 0) / data.observed_prices.length;
+        const baselineRMSE = Math.sqrt(baselineMSE);
+        
+        document.getElementById('baseline-display').innerHTML = `
+            <div class="insights">
+                <h3>📈 Baseline Performance (always predict average price):</h3>
+                <p>• Average price prediction: $${avgPrice.toFixed(0)}</p>
+                <p>• Root Mean Squared Error: $${baselineRMSE.toFixed(0)}</p>
+                <p><strong>Our algorithm must beat this RMSE!</strong></p>
+            </div>
+        `;
+        
+        // Create the plot
+        const X_line = [];
+        const y_true_line = [];
+        for (let i = 0; i < 100; i++) {
+            const x = Math.min(...data.square_footage) + i * (Math.max(...data.square_footage) - Math.min(...data.square_footage)) / 99;
+            X_line.push(x);
+            y_true_line.push(data.TRUE_SLOPE * x + data.TRUE_INTERCEPT);
+        }
+        
+        const trace1 = {
+            x: data.square_footage,
+            y: data.observed_prices,
+            mode: 'markers',
+            type: 'scatter',
+            name: 'Observed House Prices',
+            marker: {
+                color: 'steelblue',
+                size: 8,
+                opacity: 0.7
+            }
+        };
+        
+        const trace2 = {
+            x: X_line,
+            y: y_true_line,
+            mode: 'lines',
+            type: 'scatter',
+            name: `True Relationship (slope=$${data.TRUE_SLOPE}, intercept=$${data.TRUE_INTERCEPT.toLocaleString()})`,
+            line: {
+                color: 'red',
+                width: 3,
+                dash: 'dash'
+            }
+        };
+        
+        const layout = {
+            title: {
+                text: 'House Prices vs Square Footage<br><sub>The pattern our algorithm needs to discover</sub>',
+                font: { size: 18, color: 'white' }
+            },
+            xaxis: {
+                title: 'Square Footage',
+                color: 'white',
+                gridcolor: 'rgba(255,255,255,0.2)'
+            },
+            yaxis: {
+                title: 'House Price ($)',
+                color: 'white',
+                gridcolor: 'rgba(255,255,255,0.2)',
+                tickformat: '$,.0f'
+            },
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            font: { color: 'white' },
+            legend: {
+                bgcolor: 'rgba(255,255,255,0.1)',
+                bordercolor: 'rgba(255,255,255,0.2)',
+                borderwidth: 1
+            }
+        };
+        
+        Plotly.newPlot('plot', [trace1, trace2], layout);
+        
+        function calculateCorrelation(x, y) {
+            const n = x.length;
+            const sumX = x.reduce((a, b) => a + b);
+            const sumY = y.reduce((a, b) => a + b);
+            const sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
+            const sumX2 = x.reduce((sum, xi) => sum + xi * xi, 0);
+            const sumY2 = y.reduce((sum, yi) => sum + yi * yi, 0);
+            
+            const numerator = n * sumXY - sumX * sumY;
+            const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+            
+            return numerator / denominator;
+        }
+    </script>
+</body>
+</html>

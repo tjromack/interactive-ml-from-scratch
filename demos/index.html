@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Machine Learning from Scratch</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 60px 0;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .hero h1 {
+            font-size: 3.5em;
+            background: linear-gradient(45deg, #ffd700, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .hero .subtitle {
+            font-size: 1.4em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero .description {
+            font-size: 1.1em;
+            margin-bottom: 40px;
+            opacity: 0.8;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .start-button {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+            color: white;
+            text-decoration: none;
+            padding: 18px 36px;
+            border-radius: 15px;
+            font-size: 1.3em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(255,107,107,0.3);
+        }
+
+        .start-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255,107,107,0.4);
+        }
+
+        .journey-section {
+            margin: 60px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 40px;
+            color: #ffd700;
+        }
+
+        .phases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .phase-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .phase-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            background: rgba(255,255,255,0.15);
+        }
+
+        .phase-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .phase-title {
+            font-size: 1.5em;
+            color: #4ecdc4;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .phase-description {
+            margin-bottom: 25px;
+            opacity: 0.9;
+        }
+
+        .phase-link {
+            display: inline-block;
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .phase-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(78,205,196,0.3);
+        }
+
+        .features-section {
+            background: rgba(0,0,0,0.2);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 60px 0;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .feature {
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            color: #ffd700;
+        }
+
+        .feature-title {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: #4ecdc4;
+        }
+
+        .about-section {
+            text-align: center;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 60px 0;
+        }
+
+        .github-section {
+            text-align: center;
+            margin: 60px 0;
+        }
+
+        .github-button {
+            display: inline-block;
+            background: #333;
+            color: white;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: bold;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+        }
+
+        .github-button:hover {
+            background: #555;
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            opacity: 0.7;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 60px;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5em;
+            }
+            
+            .hero .subtitle {
+                font-size: 1.2em;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .phases-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+            <h1>Interactive Machine Learning from Scratch</h1>
+            <p class="subtitle">Build Linear Regression from Mathematical First Principles</p>
+            <p class="description">
+                No frameworks. No shortcuts. Just pure mathematics, JavaScript, and interactive visualizations 
+                that make complex concepts crystal clear. Perfect for students, educators, and curious developers.
+            </p>
+            <a href="predictor.html" class="start-button">🚀 Try the Working Predictor</a>
+        </div>
+
+        <!-- Learning Journey -->
+        <section class="journey-section">
+            <h2 class="section-title">🎯 The Complete Learning Journey</h2>
+            
+            <div class="phases-grid">
+                <div class="phase-card">
+                    <span class="phase-icon">📊</span>
+                    <h3 class="phase-title">Phase 1: Foundation</h3>
+                    <p class="phase-description">
+                        Understand the problem, explore data patterns, and set up the mathematical foundation. 
+                        See why we need machine learning and what we're trying to solve.
+                    </p>
+                    <a href="phase1-foundation.html" class="phase-link">Start Learning</a>
+                </div>
+
+                <div class="phase-card">
+                    <span class="phase-icon">🧮</span>
+                    <h3 class="phase-title">Phase 2: Core Algorithm</h3>
+                    <p class="phase-description">
+                        Build gradient descent from scratch. Watch parameters evolve in real-time as the algorithm 
+                        learns the underlying pattern in the data.
+                    </p>
+                    <a href="phase2-algorithm.html" class="phase-link">See Learning</a>
+                </div>
+
+                <div class="phase-card">
+                    <span class="phase-icon">🎨</span>
+                    <h3 class="phase-title">Phase 3: Visualizations</h3>
+                    <p class="phase-description">
+                        Explore 3D cost surfaces, gradient flows, and interactive demonstrations. 
+                        Understand why algorithms behave the way they do.
+                    </p>
+                    <a href="phase3-visualization.html" class="phase-link">Explore 3D</a>
+                </div>
+
+                <div class="phase-card">
+                    <span class="phase-icon">✅</span>
+                    <h3 class="phase-title">Phase 4: Validation</h3>
+                    <p class="phase-description">
+                        Test the model on new data, measure performance, and learn to explain 
+                        complex concepts in simple terms.
+                    </p>
+                    <a href="phase4-validation.html" class="phase-link">Test & Validate</a>
+                </div>
+
+                <div class="phase-card">
+                    <span class="phase-icon">🏠</span>
+                    <h3 class="phase-title">Final Application</h3>
+                    <p class="phase-description">
+                        Use the trained model in a clean, user-friendly interface. 
+                        This is what all the math and code was building toward.
+                    </p>
+                    <a href="predictor.html" class="phase-link">Use the Model</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features-section">
+            <h2 class="section-title">🌟 What Makes This Special</h2>
+            
+            <div class="features-grid">
+                <div class="feature">
+                    <div class="feature-icon">🎮</div>
+                    <h3 class="feature-title">Interactive Learning</h3>
+                    <p>Click, explore, and experiment with every concept. No passive reading.</p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">🧮</div>
+                    <h3 class="feature-title">Mathematical Rigor</h3>
+                    <p>Every algorithm implemented from scratch. No black boxes or shortcuts.</p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">📱</div>
+                    <h3 class="feature-title">Works Anywhere</h3>
+                    <p>Pure web technologies. No installation, no setup, runs on any device.</p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">🎓</div>
+                    <h3 class="feature-title">Teaching Focused</h3>
+                    <p>Built specifically for education with clear explanations and analogies.</p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">⚡</div>
+                    <h3 class="feature-title">Real Performance</h3>
+                    <p>97.7% parameter accuracy. This actually works, not just a demo.</p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">🌍</div>
+                    <h3 class="feature-title">Real Applications</h3>
+                    <p>Same math applies to medical diagnosis, finance, and countless other fields.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section class="about-section">
+            <h2 class="section-title">💡 Why This Project Exists</h2>
+            <p style="font-size: 1.2em; max-width: 800px; margin: 0 auto 30px;">
+                Machine learning doesn't have to be mysterious. When you understand the fundamentals – 
+                the actual mathematics and algorithms – you can build anything. This project proves that 
+                complex concepts become simple with proper visualization and hands-on exploration.
+            </p>
+            <p style="opacity: 0.8; max-width: 600px; margin: 0 auto;">
+                Perfect for computer science students, educators looking for teaching materials, 
+                or anyone curious about how AI really works under the hood.
+            </p>
+        </section>
+
+        <!-- GitHub Section -->
+        <section class="github-section">
+            <h2 class="section-title">🔧 For Developers</h2>
+            <p style="margin-bottom: 30px; font-size: 1.1em;">
+                View source, contribute, or adapt for your own projects
+            </p>
+            <a href="https://github.com/tjromack/interactive-ml-from-scratch" class="github-button">
+                📄 View on GitHub
+            </a>
+            <a href="https://github.com/tjromack/interactive-ml-from-scratch/blob/main/docs/technical-details.md" class="github-button">
+                🔍 Technical Details
+            </a>
+            <a href="https://github.com/tjromack/interactive-ml-from-scratch/issues" class="github-button">
+                💬 Ask Questions
+            </a>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>
+                Built with ❤️ for education • No frameworks, just mathematics and curiosity<br>
+                <a href="mailto:tjromack@gmail.com" style="color: #4ecdc4;">Questions? Get in touch!</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Add some subtle interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Smooth scrolling for internal links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            // Add entrance animations
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            });
+
+            document.querySelectorAll('.phase-card, .feature').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>

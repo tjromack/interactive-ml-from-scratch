@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Price Predictor</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+        }
+        .header {
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #ffd700, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        .predictor-box {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        .input-group {
+            margin: 25px 0;
+        }
+        .input-group label {
+            display: block;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: #ffd700;
+        }
+        .input-group input {
+            width: 200px;
+            padding: 15px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 10px;
+            text-align: center;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+        }
+        .predict-button {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 20px 0;
+            transition: all 0.3s;
+        }
+        .predict-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76,175,80,0.3);
+        }
+        .result {
+            background: rgba(76,175,80,0.2);
+            border-left: 4px solid #4CAF50;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+        .result.show {
+            display: block;
+        }
+        .price {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #4CAF50;
+            margin: 20px 0;
+        }
+        .model-info {
+            background: rgba(255,193,7,0.1);
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        .warning {
+            background: rgba(255,87,34,0.2);
+            border-left: 4px solid #ff5722;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 0.9em;
+        }
+        .example-houses {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .example-house {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .example-house:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>House Price Predictor</h1>
+            <p>Using our trained machine learning model</p>
+        </div>
+
+        <div class="predictor-box">
+            <div class="input-group">
+                <label for="sqftInput">Enter Square Footage:</label>
+                <input type="number" id="sqftInput" placeholder="e.g., 2000" min="500" max="5000">
+            </div>
+            
+            <button class="predict-button" onclick="predictPrice()">Predict House Price</button>
+            
+            <div class="result" id="resultBox">
+                <h3>Estimated Price:</h3>
+                <div class="price" id="predictedPrice">$0</div>
+                <div id="predictionDetails"></div>
+            </div>
+        </div>
+
+        <div class="model-info">
+            <h3>About This Model</h3>
+            <p><strong>Training Results:</strong></p>
+            <ul>
+                <li>Slope: $146.53 per square foot (97.7% accurate)</li>
+                <li>Base Price: $54,895 (90.2% accurate)</li>
+                <li>Model Formula: Price = $54,895 + $146.53 × Square Feet</li>
+            </ul>
+            <p><strong>What this means:</strong> For every additional square foot, the model predicts the price increases by about $147.</p>
+        </div>
+
+        <div class="warning">
+            <h4>Important Disclaimers:</h4>
+            <ul>
+                <li>This is a simplified model trained on synthetic data for educational purposes</li>
+                <li>Real house prices depend on many factors: location, condition, age, market conditions, etc.</li>
+                <li>Use this as a rough estimate only, not for actual real estate decisions</li>
+                <li>The model works best for houses between 800-3000 square feet</li>
+            </ul>
+        </div>
+
+        <h3>Try These Examples:</h3>
+        <div class="example-houses">
+            <div class="example-house" onclick="setSquareFootage(1200)">
+                <strong>Small House</strong><br>
+                1,200 sq ft<br>
+                <small>Click to predict</small>
+            </div>
+            <div class="example-house" onclick="setSquareFootage(2000)">
+                <strong>Medium House</strong><br>
+                2,000 sq ft<br>
+                <small>Click to predict</small>
+            </div>
+            <div class="example-house" onclick="setSquareFootage(2800)">
+                <strong>Large House</strong><br>
+                2,800 sq ft<br>
+                <small>Click to predict</small>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Our trained model parameters from Phase 2
+        const MODEL_PARAMS = {
+            theta0: 54895,    // Intercept (base price)
+            theta1: 146.53,   // Slope (price per square foot)
+            accuracy: {
+                slope: 97.7,
+                intercept: 90.2
+            }
+        };
+
+        function predictPrice() {
+            const sqftInput = document.getElementById('sqftInput');
+            const sqft = parseFloat(sqftInput.value);
+            
+            // Validate input
+            if (isNaN(sqft) || sqft <= 0) {
+                alert('Please enter a valid square footage greater than 0');
+                return;
+            }
+            
+            if (sqft < 500 || sqft > 5000) {
+                alert('Warning: This model works best for houses between 500-5000 square feet');
+            }
+            
+            // Make prediction using our trained model
+            const predictedPrice = MODEL_PARAMS.theta0 + MODEL_PARAMS.theta1 * sqft;
+            
+            // Display result
+            displayPrediction(sqft, predictedPrice);
+        }
+
+        function displayPrediction(sqft, price) {
+            const resultBox = document.getElementById('resultBox');
+            const priceDisplay = document.getElementById('predictedPrice');
+            const detailsDisplay = document.getElementById('predictionDetails');
+            
+            // Format price
+            const formattedPrice = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                maximumFractionDigits: 0
+            }).format(price);
+            
+            priceDisplay.textContent = formattedPrice;
+            
+            // Calculate breakdown
+            const basePrice = MODEL_PARAMS.theta0;
+            const sizePrice = MODEL_PARAMS.theta1 * sqft;
+            
+            detailsDisplay.innerHTML = `
+                <p><strong>Calculation Breakdown:</strong></p>
+                <p>Base Price: $${basePrice.toLocaleString()}</p>
+                <p>Size Premium: $${MODEL_PARAMS.theta1.toFixed(2)} × ${sqft} sq ft = $${sizePrice.toLocaleString()}</p>
+                <p><strong>Total: ${formattedPrice}</strong></p>
+                <p><em>This equals $${(price/sqft).toFixed(0)} per square foot</em></p>
+            `;
+            
+            resultBox.classList.add('show');
+            
+            // Scroll to result
+            resultBox.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function setSquareFootage(sqft) {
+            document.getElementById('sqftInput').value = sqft;
+            predictPrice();
+        }
+
+        // Add enter key support
+        document.getElementById('sqftInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                predictPrice();
+            }
+        });
+
+        // Example prediction on load
+        window.onload = function() {
+            console.log('House Price Predictor ready');
+            console.log('Model parameters:', MODEL_PARAMS);
+        };
+    </script>
+</body>
+</html>

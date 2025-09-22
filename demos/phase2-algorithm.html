@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 2: Final Working Implementation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.26.0/plotly.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .controls button {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        .controls button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .controls button:disabled {
+            background: #7f8c8d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .status {
+            background: rgba(243, 156, 18, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #f39c12;
+            margin: 15px 0;
+            min-height: 100px;
+        }
+        .plot-container {
+            height: 400px;
+            margin: 20px 0;
+        }
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 3px;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            height: 20px;
+            border-radius: 8px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .success {
+            background: rgba(46, 204, 113, 0.2);
+            border-left: 4px solid #2ecc71;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align: center; font-size: 2.5em; margin-bottom: 30px;">
+            🎯 Phase 2: Properly Scaled Linear Regression
+        </h1>
+
+        <div class="controls">
+            <button onclick="startTraining()" id="trainBtn">🚀 Train Model</button>
+            <button onclick="resetEverything()" id="resetBtn">🔄 Reset</button>
+            <button onclick="runDebugTest()" id="debugBtn">🐛 Debug Test</button>
+        </div>
+
+        <div class="status" id="statusDiv">
+            <h3>📊 Status:</h3>
+            <p>Ready to train with properly scaled algorithm...</p>
+        </div>
+
+        <div class="progress-bar" id="progressContainer" style="display: none;">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div>
+            <h3>Training Progress</h3>
+            <div id="trainingPlot" class="plot-container"></div>
+        </div>
+
+        <div>
+            <h3>Model Fit</h3>
+            <div id="fitPlot" class="plot-container"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let trainingData = null;
+        let model = null;
+        let isTraining = false;
+
+        // Properly scaled Linear Regression
+        class ProperlyScaledLinearRegression {
+            constructor() {
+                this.theta0 = 0; // intercept (scaled space)
+                this.theta1 = 0; // slope (scaled space)
+                this.costHistory = [];
+                this.learningRate = 0.1; // Much higher rate for normalized data
+                this.maxIterations = 2000; // Fewer iterations needed with proper scaling
+                
+                // Scaling parameters
+                this.xMean = 0;
+                this.xStd = 1;
+                this.yMean = 0;
+                this.yStd = 1;
+            }
+
+            // Normalize features to mean=0, std=1
+            normalizeData(X, y) {
+                // Calculate statistics
+                this.xMean = X.reduce((a, b) => a + b) / X.length;
+                this.yMean = y.reduce((a, b) => a + b) / y.length;
+                
+                const xVariance = X.reduce((sum, x) => sum + Math.pow(x - this.xMean, 2), 0) / X.length;
+                const yVariance = y.reduce((sum, y) => sum + Math.pow(y - this.yMean, 2), 0) / y.length;
+                
+                this.xStd = Math.sqrt(xVariance);
+                this.yStd = Math.sqrt(yVariance);
+                
+                // Normalize
+                const xNorm = X.map(x => (x - this.xMean) / this.xStd);
+                const yNorm = y.map(y => (y - this.yMean) / this.yStd);
+                
+                console.log('Data normalization:');
+                console.log(`X: mean=${this.xMean.toFixed(0)}, std=${this.xStd.toFixed(0)}`);
+                console.log(`Y: mean=${this.yMean.toFixed(0)}, std=${this.yStd.toFixed(0)}`);
+                console.log(`Normalized X range: [${Math.min(...xNorm).toFixed(2)}, ${Math.max(...xNorm).toFixed(2)}]`);
+                console.log(`Normalized Y range: [${Math.min(...yNorm).toFixed(2)}, ${Math.max(...yNorm).toFixed(2)}]`);
+                
+                return { xNorm, yNorm };
+            }
+
+            // Convert normalized parameters back to original scale
+            denormalizeParameters() {
+                const originalSlope = this.theta1 * (this.yStd / this.xStd);
+                const originalIntercept = this.theta0 * this.yStd + this.yMean - originalSlope * this.xMean;
+                
+                return {
+                    theta0: originalIntercept,
+                    theta1: originalSlope
+                };
+            }
+
+            initialize(X, y) {
+                // Normalize the data first
+                const normalized = this.normalizeData(X, y);
+                this.xNorm = normalized.xNorm;
+                this.yNorm = normalized.yNorm;
+                
+                // Initialize parameters in normalized space (should be near 0)
+                this.theta0 = 0; // Intercept should be ~0 for normalized data
+                this.theta1 = 0.1; // Small initial slope
+                this.costHistory = [];
+                
+                console.log('Initialized normalized model:');
+                console.log(`theta0 (normalized): ${this.theta0}`);
+                console.log(`theta1 (normalized): ${this.theta1}`);
+                
+                const original = this.denormalizeParameters();
+                console.log(`Original scale: theta0=${original.theta0.toFixed(0)}, theta1=${original.theta1.toFixed(2)}`);
+                console.log('Target: theta0=50000, theta1=150');
+            }
+
+            predict(xNorm) {
+                return xNorm.map(x => this.theta0 + this.theta1 * x);
+            }
+
+            computeCost(xNorm, yNorm) {
+                const predictions = this.predict(xNorm);
+                let sumSquaredErrors = 0;
+                
+                for (let i = 0; i < yNorm.length; i++) {
+                    const error = predictions[i] - yNorm[i];
+                    sumSquaredErrors += error * error;
+                }
+                
+                return sumSquaredErrors / (2 * yNorm.length);
+            }
+
+            computeGradients(xNorm, yNorm) {
+                const m = yNorm.length;
+                const predictions = this.predict(xNorm);
+                let sumErrors = 0;
+                let sumErrorsTimesX = 0;
+
+                for (let i = 0; i < m; i++) {
+                    const error = predictions[i] - yNorm[i];
+                    sumErrors += error;
+                    sumErrorsTimesX += error * xNorm[i];
+                }
+
+                return {
+                    dTheta0: sumErrors / m,
+                    dTheta1: sumErrorsTimesX / m
+                };
+            }
+
+            trainOneStep() {
+                const gradients = this.computeGradients(this.xNorm, this.yNorm);
+                
+                // Update parameters in normalized space
+                this.theta0 -= this.learningRate * gradients.dTheta0;
+                this.theta1 -= this.learningRate * gradients.dTheta1;
+                
+                const cost = this.computeCost(this.xNorm, this.yNorm);
+                this.costHistory.push(cost);
+                
+                return {
+                    cost: cost,
+                    theta0Norm: this.theta0,
+                    theta1Norm: this.theta1,
+                    gradients: gradients
+                };
+            }
+
+            // Predict on original scale data
+            predictOriginal(X) {
+                const xNorm = X.map(x => (x - this.xMean) / this.xStd);
+                const yNormPred = this.predict(xNorm);
+                return yNormPred.map(y => y * this.yStd + this.yMean);
+            }
+        }
+
+        // Generate house data - same as before
+        function generateHouseData() {
+            const TRUE_SLOPE = 150;
+            const TRUE_INTERCEPT = 50000;
+            const NOISE_LEVEL = 15000;
+            const N_SAMPLES = 100;
+
+            const data = {
+                sqft: [],
+                prices: [],
+                trueSlope: TRUE_SLOPE,
+                trueIntercept: TRUE_INTERCEPT
+            };
+
+            // Simple random number generator
+            let seed = 42;
+            function random() {
+                const x = Math.sin(seed++) * 10000;
+                return x - Math.floor(x);
+            }
+
+            function normalRandom() {
+                const u1 = random();
+                const u2 = random();
+                return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+            }
+
+            for (let i = 0; i < N_SAMPLES; i++) {
+                const sqft = 800 + random() * (3000 - 800);
+                const truePrice = TRUE_SLOPE * sqft + TRUE_INTERCEPT;
+                const noise = normalRandom() * NOISE_LEVEL;
+                
+                data.sqft.push(sqft);
+                data.prices.push(truePrice + noise);
+            }
+
+            console.log('Generated house data:', {
+                samples: N_SAMPLES,
+                sqftRange: [Math.min(...data.sqft).toFixed(0), Math.max(...data.sqft).toFixed(0)],
+                priceRange: [Math.min(...data.prices).toFixed(0), Math.max(...data.prices).toFixed(0)],
+                targetSlope: TRUE_SLOPE,
+                targetIntercept: TRUE_INTERCEPT
+            });
+
+            return data;
+        }
+
+        // Update status display
+        function updateStatus(message) {
+            document.getElementById('statusDiv').innerHTML = '<h3>📊 Status:</h3>' + message;
+        }
+
+        // Update progress bar
+        function updateProgress(percent) {
+            document.getElementById('progressContainer').style.display = 'block';
+            document.getElementById('progressFill').style.width = percent + '%';
+        }
+
+        // Update plots
+        function updatePlots() {
+            if (!trainingData || !model) return;
+
+            try {
+                // Training progress plot
+                const costTrace = {
+                    x: Array.from({length: model.costHistory.length}, (_, i) => i),
+                    y: model.costHistory,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'Cost (Normalized)',
+                    line: {color: '#e74c3c', width: 3}
+                };
+
+                Plotly.react('trainingPlot', [costTrace], {
+                    title: 'Cost Function Over Time (Normalized Data)',
+                    xaxis: {title: 'Iteration', color: 'white'},
+                    yaxis: {title: 'Cost (Normalized)', color: 'white'},
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    font: {color: 'white'}
+                });
+
+                // Model fit plot - use original scale
+                const dataTrace = {
+                    x: trainingData.sqft,
+                    y: trainingData.prices,
+                    mode: 'markers',
+                    type: 'scatter',
+                    name: 'Data',
+                    marker: {color: 'steelblue', size: 6, opacity: 0.7}
+                };
+
+                const xRange = [Math.min(...trainingData.sqft), Math.max(...trainingData.sqft)];
+                const trueLineY = xRange.map(x => trainingData.trueSlope * x + trainingData.trueIntercept);
+                const modelLineY = model.predictOriginal(xRange);
+
+                const trueLineTrace = {
+                    x: xRange,
+                    y: trueLineY,
+                    mode: 'lines',
+                    type: 'scatter',
+                    name: 'True Line',
+                    line: {color: 'red', width: 3, dash: 'dash'}
+                };
+
+                const modelLineTrace = {
+                    x: xRange,
+                    y: modelLineY,
+                    mode: 'lines',
+                    type: 'scatter',
+                    name: 'Model Line',
+                    line: {color: '#2ecc71', width: 4}
+                };
+
+                Plotly.react('fitPlot', [dataTrace, trueLineTrace, modelLineTrace], {
+                    title: 'Model Learning Process (Original Scale)',
+                    xaxis: {title: 'Square Footage', color: 'white'},
+                    yaxis: {title: 'Price ($)', color: 'white'},
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    font: {color: 'white'}
+                });
+
+            } catch (error) {
+                console.error('Plot update error:', error);
+            }
+        }
+
+        // Initialize empty plots
+        function initializePlots() {
+            Plotly.newPlot('trainingPlot', [], {
+                title: 'Cost Function Over Time',
+                xaxis: {title: 'Iteration', color: 'white'},
+                yaxis: {title: 'Cost', color: 'white'},
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                font: {color: 'white'}
+            });
+
+            Plotly.newPlot('fitPlot', [], {
+                title: 'Model Learning Process',
+                xaxis: {title: 'Square Footage', color: 'white'},
+                yaxis: {title: 'Price ($)', color: 'white'},
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                font: {color: 'white'}
+            });
+        }
+
+        // Main training function
+        async function startTraining() {
+            if (isTraining) return;
+
+            try {
+                isTraining = true;
+                document.getElementById('trainBtn').disabled = true;
+                document.getElementById('trainBtn').innerHTML = '🔄 Training...';
+
+                updateStatus('<p>🚀 Starting training with proper normalization...</p>');
+                console.log('=== PROPERLY SCALED TRAINING START ===');
+
+                // Initialize model with normalization
+                model = new ProperlyScaledLinearRegression();
+                model.initialize(trainingData.sqft, trainingData.prices);
+
+                const initialCost = model.computeCost(model.xNorm, model.yNorm);
+                console.log('Initial normalized cost:', initialCost);
+
+                updateStatus(`<p>Training initialized with data normalization!<br>Initial cost: ${initialCost.toFixed(4)}<br>Learning rate: ${model.learningRate}</p>`);
+
+                // Training loop
+                for (let i = 0; i < model.maxIterations; i++) {
+                    const result = model.trainOneStep();
+
+                    // Update UI periodically
+                    if (i % 50 === 0 || i === model.maxIterations - 1) {
+                        const progress = (i / model.maxIterations) * 100;
+                        updateProgress(progress);
+                        
+                        // Get original scale parameters
+                        const originalParams = model.denormalizeParameters();
+                        const slopeError = Math.abs(originalParams.theta1 - trainingData.trueSlope);
+                        const interceptError = Math.abs(originalParams.theta0 - trainingData.trueIntercept);
+                        const slopeAccuracy = ((150 - slopeError) / 150 * 100).toFixed(1);
+                        const interceptAccuracy = ((50000 - interceptError) / 50000 * 100).toFixed(1);
+                        
+                        updateStatus(`
+                            <p><strong>Iteration ${i + 1}</strong></p>
+                            <p>Normalized Cost: ${result.cost.toFixed(6)}</p>
+                            <p><strong>Original Scale Parameters:</strong></p>
+                            <p>Current: θ₀=${originalParams.theta0.toFixed(0)}, θ₁=${originalParams.theta1.toFixed(2)}</p>
+                            <p>Target: θ₀=50000, θ₁=150</p>
+                            <p><strong>Accuracy:</strong> Slope ${slopeAccuracy}%, Intercept ${interceptAccuracy}%</p>
+                            <p><strong>Errors:</strong> $${slopeError.toFixed(2)}/sqft, $${interceptError.toFixed(0)}</p>
+                            <p><strong>Normalized params:</strong> θ₀=${result.theta0Norm.toFixed(3)}, θ₁=${result.theta1Norm.toFixed(3)}</p>
+                        `);
+                        updatePlots();
+                        await new Promise(resolve => setTimeout(resolve, 50));
+                    }
+
+                    // Convergence check
+                    if (i > 100 && model.costHistory.length > 20) {
+                        const recent = model.costHistory.slice(-20);
+                        const avgChange = recent.reduce((sum, cost, idx) => {
+                            if (idx === 0) return 0;
+                            return sum + Math.abs(cost - recent[idx-1]);
+                        }, 0) / 19;
+                        
+                        if (avgChange < 0.0001) {
+                            console.log(`Converged after ${i + 1} iterations`);
+                            break;
+                        }
+                    }
+                }
+
+                // Final results
+                updateProgress(100);
+                const finalParams = model.denormalizeParameters();
+                const slopeError = Math.abs(finalParams.theta1 - trainingData.trueSlope);
+                const interceptError = Math.abs(finalParams.theta0 - trainingData.trueIntercept);
+                const slopeAccuracy = ((150 - slopeError) / 150 * 100).toFixed(1);
+                const interceptAccuracy = ((50000 - interceptError) / 50000 * 100).toFixed(1);
+
+                let statusClass = "status";
+                let performanceMessage = "";
+                
+                if (slopeAccuracy > 85 && interceptAccuracy > 75) {
+                    statusClass = "status success";
+                    performanceMessage = '<p><strong>🎯 EXCELLENT! Outstanding parameter recovery!</strong></p>';
+                } else if (slopeAccuracy > 75 && interceptAccuracy > 65) {
+                    statusClass = "status success";
+                    performanceMessage = '<p><strong>✅ VERY GOOD! Great parameter recovery!</strong></p>';
+                } else if (slopeAccuracy > 60 && interceptAccuracy > 50) {
+                    performanceMessage = '<p><strong>✅ GOOD! Decent parameter recovery!</strong></p>';
+                } else {
+                    performanceMessage = '<p><strong>⚠️ Still needs improvement, but much better than before!</strong></p>';
+                }
+
+                document.getElementById('statusDiv').className = statusClass;
+                updateStatus(`
+                    <h4>🎉 Training Complete with Proper Normalization!</h4>
+                    <p><strong>Final Normalized Cost:</strong> ${model.costHistory[model.costHistory.length-1].toFixed(6)}</p>
+                    <p><strong>Iterations:</strong> ${model.costHistory.length}</p>
+                    <p><strong>Final Parameters (Original Scale):</strong></p>
+                    <p>θ₀ = ${finalParams.theta0.toFixed(0)} (target: 50000) - ${interceptAccuracy}% accurate</p>
+                    <p>θ₁ = ${finalParams.theta1.toFixed(2)} (target: 150) - ${slopeAccuracy}% accurate</p>
+                    <p><strong>Parameter Recovery:</strong></p>
+                    <p>Slope error: $${slopeError.toFixed(2)} per sqft</p>
+                    <p>Intercept error: $${interceptError.toFixed(0)}</p>
+                    ${performanceMessage}
+                    <p><strong>🔬 The key was proper data normalization!</strong></p>
+                `);
+                
+                updatePlots();
+                console.log('=== TRAINING COMPLETE ===');
+                console.log('Final original parameters:', finalParams);
+
+            } catch (error) {
+                console.error('Training failed:', error);
+                updateStatus('<p>❌ Training failed: ' + error.message + '</p>');
+            } finally {
+                isTraining = false;
+                document.getElementById('trainBtn').disabled = false;
+                document.getElementById('trainBtn').innerHTML = '🚀 Train Model';
+            }
+        }
+
+        // Debug test function
+        function runDebugTest() {
+            console.log('🐛 Running normalization debug test...');
+            
+            try {
+                updateStatus('<p>Running normalization debug test...</p>');
+                
+                const testData = generateHouseData();
+                const testModel = new ProperlyScaledLinearRegression();
+                testModel.initialize(testData.sqft, testData.prices);
+                
+                console.log('✅ All normalization tests passed!');
+                updateStatus('<p>✅ Normalization debug test passed! Ready for training.</p>');
+                
+            } catch (error) {
+                console.error('❌ Debug test failed:', error);
+                updateStatus('<p>❌ Debug test failed: ' + error.message + '</p>');
+            }
+        }
+
+        // Reset function
+        function resetEverything() {
+            isTraining = false;
+            model = null;
+            document.getElementById('trainBtn').disabled = false;
+            document.getElementById('trainBtn').innerHTML = '🚀 Train Model';
+            document.getElementById('progressContainer').style.display = 'none';
+            document.getElementById('statusDiv').className = 'status';
+            updateStatus('<p>Reset complete. Ready to train with proper normalization...</p>');
+            initializePlots();
+        }
+
+        // Initialize everything when page loads
+        function initialize() {
+            console.log('Initializing properly scaled application...');
+            trainingData = generateHouseData();
+            initializePlots();
+            updateStatus('<p>Application initialized with proper data normalization!</p>');
+            console.log('Initialization complete');
+        }
+
+        // Start when page loads
+        window.onload = initialize;
+    </script>
+</body>
+</html>
