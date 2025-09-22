@@ -32,9 +32,9 @@ This isn't just another ML tutorial. It's a **complete educational journey** tha
 |---------------------------|---------------------------|---------------------------|
 | ![Phase 1](screenshots/phase1-foundation.png) | ![Phase 2](screenshots/phase2-algorithm.png) | ![Phase 3](screenshots/phase3-visualization.png) |
 
-| Working Predictor || Kid-Friendly Explanation |
-|------------------|----------------------------|
-| ![Predictor](screenshots/predictor-demo.png) | ![Explanation](screenshots/phase4-validation.png) |
+| Working Predictor | Phase 4: Validation |
+|-------------------|---------------------|
+| ![Predictor](screenshots/predictor-demo.png) | ![Validation](screenshots/phase4-validation.png) |
 
 ## 🎯 The Complete Learning Journey
 
