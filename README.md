@@ -3,8 +3,8 @@
 
 > **🎯 Goal:** Build linear regression from scratch using only vanilla JavaScript, HTML, and CSS - no frameworks, no libraries except Plotly for visualization. Perfect for understanding ML fundamentals.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-View%20Project-blue?style=for-the-badge)](your-github-pages-url)
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-View%20Project-blue?style=for-the-badge)](https://tjromack.github.io/interactive-ml-from-scratch)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE.txt)
 
 ## 🌟 What Makes This Special
 
@@ -18,11 +18,11 @@ This isn't just another ML tutorial. It's a **complete educational journey** tha
 
 ## 🚀 Try It Live
 
-1. **[Start Here: House Price Predictor](./house_price_predictor.html)** - See the final working model
-2. **[Phase 1: Data & Foundation](./phase1_demo.html)** - Understanding the problem
-3. **[Phase 2: Core Algorithm](./phase2_final_fix.html)** - Watch the learning happen
-4. **[Phase 3: Advanced Visualizations](./phase3_master.html)** - 3D cost surfaces & gradient flows
-5. **[Phase 4: Validation & Explanation](./phase4_validation.html)** - Testing & teaching others
+1. **[Start Here: House Price Predictor](./demos/predictor.html)** - See the final working model
+2. **[Phase 1: Data & Foundation](./demos/phase1-foundation.html)** - Understanding the problem
+3. **[Phase 2: Core Algorithm](./demos/phase2-algorithm.html)** - Watch the learning happen
+4. **[Phase 3: Advanced Visualizations](./demos/phase3-visualization.html)** - 3D cost surfaces & gradient flows
+5. **[Phase 4: Validation & Explanation](./demos/phase4-validation.html)** - Testing & teaching others
 
 *Just download and open any HTML file in your browser - no setup required!*
 
@@ -30,11 +30,11 @@ This isn't just another ML tutorial. It's a **complete educational journey** tha
 
 | Phase 1: Data Exploration | Phase 2: Learning Process | Phase 3: 3D Visualization |
 |---------------------------|---------------------------|---------------------------|
-| ![Phase 1](screenshots/phase1.png) | ![Phase 2](screenshots/phase2.png) | ![Phase 3](screenshots/phase3.png) |
+| ![Phase 1](screenshots/phase1-foundation.png) | ![Phase 2](screenshots/phase2-algorithm.png) | ![Phase 3](screenshots/phase3-visualization.png) |
 
-| Working Predictor | Gradient Descent Animation | Kid-Friendly Explanation |
-|------------------|----------------------------|--------------------------|
-| ![Predictor](screenshots/predictor.png) | ![Animation](screenshots/gradient.png) | ![Explanation](screenshots/explanation.png) |
+| Working Predictor || Kid-Friendly Explanation |
+|------------------|----------------------------|
+| ![Predictor](screenshots/predictor-demo.png) | ![Explanation](screenshots/phase4-validation.png) |
 
 ## 🎯 The Complete Learning Journey
 
@@ -158,7 +158,7 @@ While this project uses house prices as an example, the **exact same mathematics
 ### **For Developers**
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/interactive-ml-from-scratch.git
+git clone https://github.com/tjromack/interactive-ml-from-scratch.git
 
 # Open in your favorite editor
 cd interactive-ml-from-scratch
@@ -194,7 +194,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE.txt) file for details.
 
 ## 🙏 Acknowledgments
 
@@ -207,7 +207,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **GitHub Issues**: For bugs, feature requests, or technical questions
 - **Discussions**: For educational questions or general discussion about the project
-- **Email**: [your-email] for other inquiries
+- **Email**: [tjromack@gmail.com] for other inquiries
 
 ---
 
